@@ -1,4 +1,4 @@
-# sierra-banner
+# my-custom-camera
 
 ## Project setup
 ```
