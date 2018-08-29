@@ -1,14 +1,17 @@
 <template>
   <div id="canvas-wrapper">
-    <canvas id="canvas" width="640" height="480"></canvas>
+    <h4>My Custom Camera App by Justin Rudio</h4>
+    <p id="log"></p>
+    <canvas id="canvas"></canvas>
   </div>
 </template>
 
 <script>
 
-import TopBanner from '../assets/top_banner.png';
-import BottomBanner from '../assets/bottom_banner.png';
+import BannerOverlay from '../assets/sierra_overlay.png';
 
+// when requesting our desired resolution of 640x480 using Chrome's camera api
+// we actually get 480x640 on mobile (tested on a Pixel 2)
 const camera = {
   width: 640,
   height: 480,
@@ -57,8 +60,7 @@ function pipeCameraToCanvas(appState = {}) {
     const {
       canvas,
       ctx,
-      topBanner,
-      bottomBanner,
+      bannerOverlay,
     } = canvasContainer;
 
     // do work
@@ -68,22 +70,16 @@ function pipeCameraToCanvas(appState = {}) {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     if (videoContainer !== undefined && videoContainer.isReady) {
-      const { video, scale } = videoContainer;
+      const { video } = videoContainer;
       const { videoWidth, videoHeight } = video;
 
-      let top = canvasHeight / 2;
+      let info = `video - width: ${videoWidth} height: ${videoHeight}\n`;
+      info += `canvas - width: ${canvasWidth} height: ${canvasHeight}`;
+      document.getElementById('log').innerText = info;
 
-      top -= (videoHeight / 2);
-      top *= scale;
-
-      let left = canvasWidth / 2;
-      left -= (videoWidth / 2);
-      left *= scale;
-
-      ctx.drawImage(video, left, top, videoWidth * scale, videoHeight * scale);
-      ctx.globalAlpha = 0.65;
-      ctx.drawImage(topBanner, 0, 0);
-      ctx.drawImage(bottomBanner, 0, 320);
+      ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+      ctx.globalAlpha = 0.55;
+      ctx.drawImage(bannerOverlay, 0, 0);
       ctx.globalAlpha = 1;
     }
 
@@ -93,19 +89,8 @@ function pipeCameraToCanvas(appState = {}) {
 
 function onCanPlayVideo(appState = {}) {
   return function canPlay() {
-    const {
-      canvasContainer,
-    } = appState;
-
-    const { canvas } = canvasContainer;
-
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-
     const newAppState = Object.assign({}, appState);
 
-    newAppState.videoContainer.scale =
-       Math.min(canvasWidth / this.videoWidth, canvasHeight / this.videoHeight);
     newAppState.videoContainer.isReady = true;
 
     requestAnimationFrame(pipeCameraToCanvas(newAppState));
@@ -118,19 +103,19 @@ function main() {
       video: document.createElement('video'),
       imgCapture: null,
       isReady: false,
-      scale: 0,
     },
     canvasContainer: {
       wrapper: document.getElementById('canvas-wrapper'),
       canvas: document.getElementById('canvas'),
       ctx: loadCanvas(),
-      topBanner: loadImage(TopBanner),
-      bottomBanner: loadImage(BottomBanner),
+      bannerOverlay: loadImage(BannerOverlay),
       // isReady: false,
     },
   };
 
   appState.videoContainer.video.autoplay = true;
+  appState.canvasContainer.canvas.height = camera.height;
+  appState.canvasContainer.canvas.width = camera.width;
 
   // ask for access to camera and create video container for preview
   loadCamera()
