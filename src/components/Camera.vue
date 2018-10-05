@@ -1,8 +1,20 @@
 <template>
   <div id="canvas-wrapper">
-    <h4>My Custom Camera App by Justin Rudio</h4>
+
+    <!-- <h4>My Custom Camera App by Justin Rudio</h4>
+
+    <md-button class="md-raised">
+      show stats
+    </md-button> -->
+    <h1 v-if="isPortrait">Please put your phone in landscape mode!</h1>
+
     <p id="log"></p>
-    <canvas id="canvas"></canvas>
+
+    <div class="md-layout md-gutter">
+      <div class="md-layout-item">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -11,7 +23,8 @@
 import BannerOverlay from '../assets/sierra_overlay.png';
 
 // when requesting our desired resolution of 640x480 using Chrome's camera api
-// we actually get 480x640 on mobile (tested on a Pixel 2)
+// we actually get 480x640 on mobile (portrait mode; tested on a Pixel 2)
+// landscape gives us our desired constraint
 const camera = {
   width: 640,
   height: 480,
@@ -67,19 +80,27 @@ function pipeCameraToCanvas(appState = {}) {
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
     if (videoContainer !== undefined && videoContainer.isReady) {
       const { video } = videoContainer;
       const { videoWidth, videoHeight } = video;
+      // const { screen } = window;
+      // const { availHeight, availWidth } = screen;
 
       let info = `video - width: ${videoWidth} height: ${videoHeight}\n`;
-      info += `canvas - width: ${canvasWidth} height: ${canvasHeight}`;
+      // info += `canvas - width: ${canvasWidth} height: ${canvasHeight}\n`;
+      // info += `viewport - width: ${availWidth} height: ${availHeight}`;
+      info += window.screen.orientation.type;
       document.getElementById('log').innerText = info;
+
+      // we need landscape
+      // if (screen.orientation.type !== 'landscape-primary') {
+      //   requestAnimationFrame(pipeCameraToCanvas(appState));
+      //   return;
+      // }
 
       ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
       ctx.globalAlpha = 0.55;
-      ctx.drawImage(bannerOverlay, 0, 0);
+      ctx.drawImage(bannerOverlay, 0, 0, videoWidth, videoHeight);
       ctx.globalAlpha = 1;
     }
 
@@ -146,7 +167,7 @@ export default {
   },
   data() {
     return {
-      hello: 'world',
+      isPortrait: () => window.screen.orientation.type === 'landscape-primary',
     };
   },
 };
