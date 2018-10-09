@@ -13,6 +13,7 @@ version = gitDescribe.stdout.replace('\n', '');
 if (version === '') {
   console.log('no version defined\naborting...');
   shell.exit(1);
+  return;
 }
 
 // find the target javascript file
@@ -31,6 +32,7 @@ const fileHasString = variable => shell.grep(variable, filepath).stdout.replace(
 if (!fileHasString(targetVariable)) {
   console.log(`our target file (${filepath}) does not have our target variable (${targetVariable})`);
   shell.exit(1);
+  return;
 }
 
 
@@ -41,6 +43,7 @@ shell.sed('-i', targetVariable, version, filepath);
 if (!fileHasString(version)) {
   console.log(`our attempt to write ${version} to ${filepath} failed...`);
   shell.exit(1);
+  return;
 }
 
 console.log(`wrote build version '${version}' to ${filepath}`);
