@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build && node on_build.js",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "vue": "^2.5.17"
+    "shelljs": "^0.8.2",
+    "vue": "^2.5.17",
+    "vue-material": "^1.0.0-beta-10.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.1",

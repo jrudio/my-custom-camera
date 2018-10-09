@@ -1,12 +1,9 @@
 <template>
   <div id="canvas-wrapper">
 
-    <!-- <h4>My Custom Camera App by Justin Rudio</h4>
+    <h4><a href="https://github.com/jrudio/my-custom-camera" target="_blank">My Custom Camera App</a> by Justin Rudio</h4>
 
-    <md-button class="md-raised">
-      show stats
-    </md-button> -->
-    <h1 v-if="isPortrait">Please put your phone in landscape mode!</h1>
+    <p>version: {{ version }}</p>
 
     <p id="log"></p>
 
@@ -71,25 +68,21 @@ function pipeCameraToCanvas(appState = {}) {
     } = appState;
 
     const {
-      canvas,
       ctx,
       bannerOverlay,
     } = canvasContainer;
 
     // do work
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
 
     if (videoContainer !== undefined && videoContainer.isReady) {
       const { video } = videoContainer;
       const { videoWidth, videoHeight } = video;
-      // const { screen } = window;
-      // const { availHeight, availWidth } = screen;
+      const { screen } = window;
+      const { availHeight, availWidth } = screen;
 
-      let info = `video - width: ${videoWidth} height: ${videoHeight}\n`;
-      // info += `canvas - width: ${canvasWidth} height: ${canvasHeight}\n`;
-      // info += `viewport - width: ${availWidth} height: ${availHeight}`;
-      info += window.screen.orientation.type;
+      let info = `camera: ${videoWidth}x${videoHeight}\n`;
+      info += `screen: ${availWidth}x${availHeight}\n`;
+      info += `device orientation: ${window.screen.orientation.type}`;
       document.getElementById('log').innerText = info;
 
       // we need landscape
@@ -99,6 +92,7 @@ function pipeCameraToCanvas(appState = {}) {
       // }
 
       ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+      // ctx.drawImage(video, 0, 0, availWidth, availHeight);
       ctx.globalAlpha = 0.55;
       ctx.drawImage(bannerOverlay, 0, 0, videoWidth, videoHeight);
       ctx.globalAlpha = 1;
@@ -122,6 +116,7 @@ function main() {
   const appState = {
     videoContainer: {
       video: document.createElement('video'),
+      ratio: camera.width / camera.height,
       imgCapture: null,
       isReady: false,
     },
@@ -157,6 +152,7 @@ function main() {
       return newAppState;
     })
     .catch((error) => {
+      document.getElementById('log').innerText = `load camera failed: ${error}`;
       console.error(error);
     });
 }
@@ -168,6 +164,7 @@ export default {
   data() {
     return {
       isPortrait: () => window.screen.orientation.type === 'landscape-primary',
+      version: window.version,
     };
   },
 };
