@@ -72,6 +72,14 @@ function pipeCameraToCanvas(appState = {}) {
       bannerOverlay,
     } = canvasContainer;
 
+    let orientation = '';
+
+    if (window.screen.orientation) {
+      orientation = window.screen.orientation.type;
+    } else if (window.screen.msOrientation) {
+      orientation = window.screen.msOrientation;
+    }
+
     // do work
 
     if (videoContainer !== undefined && videoContainer.isReady) {
@@ -82,7 +90,7 @@ function pipeCameraToCanvas(appState = {}) {
 
       let info = `camera: ${videoWidth}x${videoHeight}\n`;
       info += `screen: ${availWidth}x${availHeight}\n`;
-      info += `device orientation: ${window.screen.orientation.type}`;
+      info += `device orientation: ${orientation}`;
       document.getElementById('log').innerText = info;
 
       // we need landscape
@@ -140,7 +148,10 @@ function main() {
 
       const newAppState = Object.assign({}, appState);
 
-      newAppState.videoContainer.imgCapture = new ImageCapture(mediaStreamTrack);
+      if (window.ImageCapture) {
+        newAppState.videoContainer.imgCapture = new ImageCapture(mediaStreamTrack);
+      }
+
       newAppState.videoContainer.video.srcObject = mediaStream;
       newAppState.videoContainer.video.oncanplay = onCanPlayVideo(appState);
 
