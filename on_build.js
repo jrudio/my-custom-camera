@@ -1,7 +1,8 @@
 const shell = require('shelljs');
+const path = require('path');
 
 const targetVariable = 'BUILD_VERSION';
-const folder = 'dist';
+const folder = path.join('dist', 'js');
 
 // we will use git commit hash as the version
 let version = '';
@@ -17,10 +18,11 @@ if (version === '') {
 }
 
 // find the target javascript file
-let filepath = shell.find(folder).filter(file => file.match(/(app)\.([a-z|1-9]*)(\.js)$/m));
+let filepath = shell.find(folder).filter(file => file.match(/(app)\.(\w*)(\.js)$/m));
 
 if (filepath.length < 1) {
-  console.log('could not find our app.js file in folder "dist"');
+  console.log(`could not find our app.js file in folder ${folder}`);
+  shell.exit(1);
 }
 
 filepath = filepath.length > 0 && filepath[0];
