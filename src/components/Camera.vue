@@ -3,7 +3,7 @@
 
     <h4><a href="https://github.com/jrudio/my-custom-camera" target="_blank">My Custom Camera App</a> by Justin Rudio</h4>
 
-    <p>version: {{ version }}</p>
+    <p>commit version: {{ version }}</p>
 
     <p id="log"></p>
 
