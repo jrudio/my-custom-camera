@@ -1,5 +1,8 @@
 <template>
   <div id="canvas-wrapper">
+    <v-btn>
+      Take picture
+    </v-btn>
     <v-btn @click="toggleInfo">
       Toggle Info
     </v-btn>
@@ -182,9 +185,9 @@ function main(vueInstance) {
 
 export default {
   methods: {
-    toggleInfo (e) {
-      this.isInfoOpen = !this.isInfoOpen
-    }
+    toggleInfo() {
+      this.isInfoOpen = !this.isInfoOpen;
+    },
   },
   mounted() {
     main(this);
