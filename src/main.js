@@ -1,10 +1,10 @@
-// import 'vue-material/dist/vue-material.min.css';
 import Vue from 'vue';
-// import VueMaterial from 'vue-material';
+import Vuetify from 'vuetify';
+import 'vuetify/dist/vuetify.min.css';
 import App from './App.vue';
 
 Vue.config.productionTip = false;
-// Vue.use(VueMaterial);
+Vue.use(Vuetify);
 
 window.version = 'BUILD_VERSION';
 
