@@ -1,11 +1,24 @@
 <template>
   <div id="canvas-wrapper">
+    <v-btn @click="toggleInfo">
+      Toggle Info
+    </v-btn>
+    <v-container v-if="isInfoOpen" grid-list-md text-xs-left>
+      <v-layout row wrap>
+        <v-flex xs-12>
 
-    <h4><a href="https://github.com/jrudio/my-custom-camera" target="_blank">My Custom Camera App</a> by Justin Rudio</h4>
+          <b>commit version: </b> {{ version }}
+        <!-- </v-flex>
+        <v-flex xs-12> -->
+          <b>camera resolution: </b> {{ cameraResolution }}
+          <b>screen resolution: </b> {{ screenResolution }}
+          <b>device orientation: </b> {{ deviceOrientation }}
+          <a href="https://github.com/jrudio/my-custom-camera" target="_blank">Source</a>
 
-    <p>commit version: {{ version }}</p>
+        </v-flex>
+      </v-layout>
 
-    <p id="log"></p>
+    </v-container>
 
     <div class="md-layout md-gutter">
       <div class="md-layout-item">
@@ -17,7 +30,7 @@
 
 <script>
 
-import BannerOverlay from '../assets/sierra_overlay.png';
+import BannerOverlay from '../assets/sierra_overlay_2.png';
 
 // when requesting our desired resolution of 640x480 using Chrome's camera api
 // we actually get 480x640 on mobile (portrait mode; tested on a Pixel 2)
@@ -60,7 +73,7 @@ function loadCanvas() {
   return ctx;
 }
 
-function pipeCameraToCanvas(appState = {}) {
+function pipeCameraToCanvas(vueInstance, appState = {}) {
   return function animate() {
     const {
       canvasContainer,
@@ -88,10 +101,9 @@ function pipeCameraToCanvas(appState = {}) {
       const { screen } = window;
       const { availHeight, availWidth } = screen;
 
-      let info = `camera: ${videoWidth}x${videoHeight}\n`;
-      info += `screen: ${availWidth}x${availHeight}\n`;
-      info += `device orientation: ${orientation}`;
-      document.getElementById('log').innerText = info;
+      vueInstance.cameraResolution = `${videoWidth}x${videoHeight}`;
+      vueInstance.screenResolution = `${availWidth}x${availHeight}`;
+      vueInstance.deviceOrientation = orientation;
 
       // we need landscape
       // if (screen.orientation.type !== 'landscape-primary') {
@@ -106,21 +118,21 @@ function pipeCameraToCanvas(appState = {}) {
       ctx.globalAlpha = 1;
     }
 
-    requestAnimationFrame(pipeCameraToCanvas(appState));
+    requestAnimationFrame(pipeCameraToCanvas(vueInstance, appState));
   };
 }
 
-function onCanPlayVideo(appState = {}) {
+function onCanPlayVideo(vueInstance, appState = {}) {
   return function canPlay() {
     const newAppState = Object.assign({}, appState);
 
     newAppState.videoContainer.isReady = true;
 
-    requestAnimationFrame(pipeCameraToCanvas(newAppState));
+    requestAnimationFrame(pipeCameraToCanvas(vueInstance, newAppState));
   };
 }
 
-function main() {
+function main(vueInstance) {
   const appState = {
     videoContainer: {
       video: document.createElement('video'),
@@ -153,12 +165,12 @@ function main() {
       }
 
       newAppState.videoContainer.video.srcObject = mediaStream;
-      newAppState.videoContainer.video.oncanplay = onCanPlayVideo(appState);
+      newAppState.videoContainer.video.oncanplay = onCanPlayVideo(vueInstance, appState);
 
       return newAppState;
     })
     .then((newAppState) => {
-      pipeCameraToCanvas(newAppState);
+      pipeCameraToCanvas(vueInstance, newAppState);
 
       return newAppState;
     })
@@ -169,11 +181,20 @@ function main() {
 }
 
 export default {
+  methods: {
+    toggleInfo (e) {
+      this.isInfoOpen = !this.isInfoOpen
+    }
+  },
   mounted() {
-    main();
+    main(this);
   },
   data() {
     return {
+      cameraResolution: '',
+      screenResolution: '',
+      deviceOrientation: '',
+      isInfoOpen: false,
       isPortrait: () => window.screen.orientation.type === 'landscape-primary',
       version: window.version,
     };
