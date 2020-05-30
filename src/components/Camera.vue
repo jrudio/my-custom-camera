@@ -24,6 +24,7 @@
     </v-container>
 
     <div class="md-layout md-gutter">
+      <div id="log"></div>
       <div class="md-layout-item">
         <canvas id="canvas"></canvas>
       </div>
@@ -178,8 +179,13 @@ function main(vueInstance) {
       return newAppState;
     })
     .catch((error) => {
-      document.getElementById('log').innerText = `load camera failed: ${error}`;
+      const log = document.getElementById('log');
+
       console.error(error);
+
+      if (log) {
+        log.innerText = `load camera failed: ${error}`;
+      }
     });
 }
 
