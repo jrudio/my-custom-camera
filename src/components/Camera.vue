@@ -24,7 +24,7 @@
     </v-container>
 
     <div class="md-layout md-gutter">
-      <div id="log"></div>
+      <div id="log" v-if="hasError">{{ errorMessage }}</div>
       <div class="md-layout-item">
         <canvas id="canvas"></canvas>
       </div>
@@ -179,13 +179,9 @@ function main(vueInstance) {
       return newAppState;
     })
     .catch((error) => {
-      const log = document.getElementById('log');
-
-      console.error(error);
-
-      if (log) {
-        log.innerText = `load camera failed: ${error}`;
-      }
+      const msg = `load camera failed: ${error}`;
+      console.error(msg);
+      vueInstance.newError(msg);
     });
 }
 
@@ -193,6 +189,14 @@ export default {
   methods: {
     toggleInfo() {
       this.isInfoOpen = !this.isInfoOpen;
+    },
+    clearError() {
+      this.hasError = false;
+      this.errorMessage = '';
+    },
+    newError(msg) {
+      this.hasError = true;
+      this.errorMessage = msg;
     },
   },
   mounted() {
@@ -204,6 +208,8 @@ export default {
       screenResolution: '',
       deviceOrientation: '',
       isInfoOpen: false,
+      errorMessage: '',
+      hasError: false,
       isPortrait: () => window.screen.orientation.type === 'landscape-primary',
       version: window.version,
     };
