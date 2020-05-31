@@ -45,7 +45,13 @@ const camera = {
 };
 
 function loadCamera() {
-  return navigator.mediaDevices.getUserMedia({
+  const { mediaDevices } = navigator;
+
+  if (!mediaDevices) {
+    throw new Error('no cameras available');
+  }
+
+  return mediaDevices.getUserMedia({
     audio: false,
     video: {
       width: camera.width,
