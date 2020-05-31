@@ -83,7 +83,7 @@ function loadCanvas() {
   return ctx;
 }
 
-function pipeCameraToCanvas(vueInstance, appState = {}) {
+function paintBanner(vueInstance, appState) {
   return function animate() {
     const {
       canvasContainer,
@@ -105,29 +105,36 @@ function pipeCameraToCanvas(vueInstance, appState = {}) {
 
     // do work
 
-    if (videoContainer !== undefined && videoContainer.isReady) {
-      const { video } = videoContainer;
-      const { videoWidth, videoHeight } = video;
-      const { screen } = window;
-      const { availHeight, availWidth } = screen;
+    // if (videoContainer !== undefined && videoContainer.isReady) {
+    const { video } = videoContainer;
+    const { videoWidth, videoHeight } = video;
+    const { screen } = window;
+    const { availHeight, availWidth } = screen;
 
-      vueInstance.cameraResolution = `${videoWidth}x${videoHeight}`;
-      vueInstance.screenResolution = `${availWidth}x${availHeight}`;
-      vueInstance.deviceOrientation = orientation;
+    vueInstance.cameraResolution = `${videoWidth}x${videoHeight}`;
+    vueInstance.screenResolution = `${availWidth}x${availHeight}`;
+    vueInstance.deviceOrientation = orientation;
 
-      // we need landscape
-      // if (screen.orientation.type !== 'landscape-primary') {
-      //   requestAnimationFrame(pipeCameraToCanvas(appState));
-      //   return;
-      // }
+    // we need landscape
+    // if (screen.orientation.type !== 'landscape-primary') {
+    //   requestAnimationFrame(pipeCameraToCanvas(appState));
+    //   return;
+    // }
 
-      ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-      // ctx.drawImage(video, 0, 0, availWidth, availHeight);
-      ctx.globalAlpha = 0.55;
-      ctx.drawImage(bannerOverlay, 0, 0, videoWidth, videoHeight);
-      ctx.globalAlpha = 1;
-    }
+    ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+    // ctx.drawImage(video, 0, 0, availWidth, availHeight);
+    ctx.globalAlpha = 0.55;
+    // ctx.drawImage(bannerOverlay, 0, 0, videoWidth, videoHeight);
+    ctx.drawImage(bannerOverlay, 0, 0, 267, 200);
+    ctx.globalAlpha = 1;
+    // }
+    requestAnimationFrame(paintBanner(vueInstance, appState));
+  };
+}
 
+function pipeCameraToCanvas(vueInstance, appState = {}) {
+  return function animate() {
+    // paintBanner(vueInstance, appState);
     requestAnimationFrame(pipeCameraToCanvas(vueInstance, appState));
   };
 }
@@ -162,6 +169,9 @@ function main(vueInstance) {
   appState.videoContainer.video.autoplay = true;
   // appState.canvasContainer.canvas.height = camera.height;
   // appState.canvasContainer.canvas.width = camera.width;
+
+  // show banner
+  requestAnimationFrame(paintBanner(vueInstance, appState));
 
   // ask for access to camera and create video container for preview
   loadCamera()
