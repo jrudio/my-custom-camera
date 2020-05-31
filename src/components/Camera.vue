@@ -40,8 +40,8 @@ import BannerOverlay from '../assets/sierra_overlay_2.png';
 // we actually get 480x640 on mobile (portrait mode; tested on a Pixel 2)
 // landscape gives us our desired constraint
 const camera = {
-  width: 640,
-  height: 480,
+  width: 1920,
+  height: 1080,
 };
 
 function loadCamera() {
@@ -54,8 +54,8 @@ function loadCamera() {
   return mediaDevices.getUserMedia({
     audio: false,
     video: {
-      width: camera.width,
-      height: camera.height,
+      width: { min: 640 },
+      height: { min: 480 },
       facingMode: 'environment',
     },
   });
@@ -83,17 +83,49 @@ function loadCanvas() {
   return ctx;
 }
 
-function paintBanner(vueInstance, appState) {
+function paintCanvas(appState) {
   return function animate() {
     const {
       canvasContainer,
       videoContainer,
     } = appState;
 
+    const { video } = videoContainer;
     const {
       ctx,
       bannerOverlay,
     } = canvasContainer;
+
+    if (videoContainer !== undefined && videoContainer.isReady) {
+      ctx.drawImage(video, 50, 0, 200, 150);
+    }
+
+    ctx.globalAlpha = 0.55;
+    // ctx.drawImage(bannerOverlay, 50, 0);
+    ctx.drawImage(bannerOverlay, 50, 0, 200, 150);
+    ctx.globalAlpha = 1;
+
+    requestAnimationFrame(paintCanvas(appState));
+  };
+}
+
+function paintInformation(vueInstance, appState) {
+  return function animate() {
+    const {
+      canvasContainer,
+      videoContainer,
+    } = appState;
+
+    const { ctx } = canvasContainer;
+
+    if (!vueInstance.isInfoOpen) {
+      return;
+    }
+
+    const { video } = videoContainer;
+    const { videoWidth, videoHeight } = video;
+    const { screen } = window;
+    const { availHeight, availWidth } = screen;
 
     let orientation = '';
 
@@ -103,39 +135,19 @@ function paintBanner(vueInstance, appState) {
       orientation = window.screen.msOrientation;
     }
 
-    // do work
+    ctx.font = '14px serif';
+    ctx.textAlign = 'start';
 
-    // if (videoContainer !== undefined && videoContainer.isReady) {
-    const { video } = videoContainer;
-    const { videoWidth, videoHeight } = video;
-    const { screen } = window;
-    const { availHeight, availWidth } = screen;
+    let info = `camera resolution: ${videoWidth}x${videoHeight}`;
+    let infoTextSize = ctx.measureText(info);
+    ctx.strokeText(info, 0, 140);
+    info = `screen resolution: ${availWidth}x${availHeight}`;
+    ctx.strokeText(info, infoTextSize.width, 140);
+    infoTextSize = ctx.measureText(info);
+    info = `device orientation: ${orientation}`;
+    ctx.strokeText(info, infoTextSize.width, 140);
 
-    vueInstance.cameraResolution = `${videoWidth}x${videoHeight}`;
-    vueInstance.screenResolution = `${availWidth}x${availHeight}`;
-    vueInstance.deviceOrientation = orientation;
-
-    // we need landscape
-    // if (screen.orientation.type !== 'landscape-primary') {
-    //   requestAnimationFrame(pipeCameraToCanvas(appState));
-    //   return;
-    // }
-
-    ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-    // ctx.drawImage(video, 0, 0, availWidth, availHeight);
-    ctx.globalAlpha = 0.55;
-    // ctx.drawImage(bannerOverlay, 0, 0, videoWidth, videoHeight);
-    ctx.drawImage(bannerOverlay, 0, 0, 267, 200);
-    ctx.globalAlpha = 1;
-    // }
-    requestAnimationFrame(paintBanner(vueInstance, appState));
-  };
-}
-
-function pipeCameraToCanvas(vueInstance, appState = {}) {
-  return function animate() {
-    // paintBanner(vueInstance, appState);
-    requestAnimationFrame(pipeCameraToCanvas(vueInstance, appState));
+    requestAnimationFrame(paintInformation(vueInstance, appState));
   };
 }
 
@@ -144,8 +156,6 @@ function onCanPlayVideo(vueInstance, appState = {}) {
     const newAppState = Object.assign({}, appState);
 
     newAppState.videoContainer.isReady = true;
-
-    requestAnimationFrame(pipeCameraToCanvas(vueInstance, newAppState));
   };
 }
 
@@ -159,19 +169,19 @@ function main(vueInstance) {
     },
     canvasContainer: {
       wrapper: document.getElementById('canvas-wrapper'),
-      canvas: document.getElementById('canvas'),
       ctx: loadCanvas(),
       bannerOverlay: loadImage(BannerOverlay),
-      // isReady: false,
     },
   };
 
   appState.videoContainer.video.autoplay = true;
-  // appState.canvasContainer.canvas.height = camera.height;
-  // appState.canvasContainer.canvas.width = camera.width;
+  appState.videoContainer.video.oncanplay = onCanPlayVideo(vueInstance, appState);
 
-  // show banner
-  requestAnimationFrame(paintBanner(vueInstance, appState));
+  // show device information
+  requestAnimationFrame(paintInformation(vueInstance, appState));
+
+
+  requestAnimationFrame(paintCanvas(appState));
 
   // ask for access to camera and create video container for preview
   loadCamera()
@@ -185,12 +195,6 @@ function main(vueInstance) {
       }
 
       newAppState.videoContainer.video.srcObject = mediaStream;
-      newAppState.videoContainer.video.oncanplay = onCanPlayVideo(vueInstance, appState);
-
-      return newAppState;
-    })
-    .then((newAppState) => {
-      pipeCameraToCanvas(vueInstance, newAppState);
 
       return newAppState;
     })
@@ -203,9 +207,9 @@ function main(vueInstance) {
 
 export default {
   methods: {
-    toggleInfo() {
-      this.isInfoOpen = !this.isInfoOpen;
-    },
+  //   toggleInfo() {
+  //     this.isInfoOpen = !this.isInfoOpen;
+  //   },
     clearError() {
       this.hasError = false;
       this.errorMessage = '';
@@ -220,14 +224,14 @@ export default {
   },
   data() {
     return {
-      cameraResolution: '',
-      screenResolution: '',
-      deviceOrientation: '',
-      isInfoOpen: false,
+      //     cameraResolution: '',
+      //     screenResolution: '',
+      //     deviceOrientation: '',
+      //     isInfoOpen: false,
       errorMessage: '',
       hasError: false,
-      isPortrait: () => window.screen.orientation.type === 'landscape-primary',
-      version: window.version,
+      //     isPortrait: () => window.screen.orientation.type === 'landscape-primary',
+      //     version: window.version,
     };
   },
 };
@@ -236,11 +240,13 @@ export default {
 
 <style scoped>
   #canvas-wrapper {
+    width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
   }
   canvas {
-    border: 5px black solid;
+    border: 2px black solid;
     width: 100%;
     height: 100%;
   }
