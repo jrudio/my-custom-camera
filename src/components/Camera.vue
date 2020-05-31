@@ -1,6 +1,6 @@
 <template>
   <div id="canvas-wrapper">
-    <v-btn>
+    <!-- <v-btn>
       Take picture
     </v-btn>
     <v-btn @click="toggleInfo">
@@ -11,8 +11,8 @@
         <v-flex xs-12>
 
           <b>commit version: </b> {{ version }}
-        <!-- </v-flex>
-        <v-flex xs-12> -->
+        </v-flex>
+        <v-flex xs-12>
           <b>camera resolution: </b> {{ cameraResolution }}
           <b>screen resolution: </b> {{ screenResolution }}
           <b>device orientation: </b> {{ deviceOrientation }}
@@ -21,14 +21,14 @@
         </v-flex>
       </v-layout>
 
-    </v-container>
+    </v-container> -->
 
-    <div class="md-layout md-gutter">
-      <div id="log" v-if="hasError">{{ errorMessage }}</div>
-      <div class="md-layout-item">
+    <!-- <div class="md-layout md-gutter"> -->
+      <!-- <div id="log" v-if="hasError">{{ errorMessage }}</div> -->
+      <!-- <div class="md-layout-item"> -->
         <canvas id="canvas"></canvas>
-      </div>
-    </div>
+      <!-- </div>
+    </div> -->
   </div>
 </template>
 
@@ -160,8 +160,8 @@ function main(vueInstance) {
   };
 
   appState.videoContainer.video.autoplay = true;
-  appState.canvasContainer.canvas.height = camera.height;
-  appState.canvasContainer.canvas.width = camera.width;
+  // appState.canvasContainer.canvas.height = camera.height;
+  // appState.canvasContainer.canvas.width = camera.width;
 
   // ask for access to camera and create video container for preview
   loadCamera()
@@ -225,7 +225,13 @@ export default {
 </script>
 
 <style scoped>
+  #canvas-wrapper {
+    margin: 0;
+    padding: 0;
+  }
   canvas {
-    border: 10px white solid;
+    border: 5px black solid;
+    width: 100%;
+    height: 100%;
   }
 </style>

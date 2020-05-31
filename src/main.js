@@ -12,7 +12,7 @@ if (shouldSW) {
     console.log('Service Worker Registered!');
   });
 } else if (shouldSWDev) {
-  navigator.serviceWorker.register('/service-workder-dev.js').then(() => {
+  navigator.serviceWorker.register('/service-worker-dev.js').then(() => {
     console.log('Service Worker Registered!');
   });
 }
