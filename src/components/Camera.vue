@@ -24,9 +24,9 @@
     </v-container> -->
 
     <!-- <div class="md-layout md-gutter"> -->
-      <!-- <div id="log" v-if="hasError">{{ errorMessage }}</div> -->
+      <div id="log" v-if="hasError">{{ errorMessage }}</div>
       <!-- <div class="md-layout-item"> -->
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" v-if="!hasError"></canvas>
       <!-- </div>
     </div> -->
   </div>
@@ -51,11 +51,13 @@ function loadCamera() {
     throw new Error('no cameras available');
   }
 
+  console.log(mediaDevices);
+
   return mediaDevices.getUserMedia({
     audio: false,
     video: {
-      width: { min: 640 },
-      height: { min: 480 },
+      width: 480,
+      height: 640,
       facingMode: 'environment',
     },
   });
@@ -187,7 +189,6 @@ function main(vueInstance) {
   loadCamera()
     .then((mediaStream) => {
       const [mediaStreamTrack] = mediaStream.getVideoTracks();
-
       const newAppState = Object.assign({}, appState);
 
       if (window.ImageCapture) {
